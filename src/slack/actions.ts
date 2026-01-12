@@ -216,6 +216,42 @@ export async function listSlackEmojis(opts: SlackActionClientOpts = {}) {
   return await client.emoji.list();
 }
 
+export type SlackChannelSummary = {
+  id?: string;
+  name?: string;
+  is_channel?: boolean;
+  is_private?: boolean;
+  is_archived?: boolean;
+  is_member?: boolean;
+  num_members?: number;
+  topic?: { value?: string };
+  purpose?: { value?: string };
+};
+
+export async function listSlackChannels(
+  opts: SlackActionClientOpts & {
+    limit?: number;
+    cursor?: string;
+    types?: string;
+    excludeArchived?: boolean;
+  } = {},
+): Promise<{ channels: SlackChannelSummary[]; nextCursor?: string }> {
+  const client = await getClient(opts);
+  const result = await client.conversations.list({
+    limit: opts.limit ?? 200,
+    cursor: opts.cursor,
+    types: opts.types,
+    exclude_archived: opts.excludeArchived ?? true,
+  });
+
+  const nextCursor = result.response_metadata?.next_cursor || undefined;
+
+  return {
+    channels: (result.channels ?? []) as SlackChannelSummary[],
+    nextCursor: nextCursor && nextCursor.length ? nextCursor : undefined,
+  };
+}
+
 export async function pinSlackMessage(
   channelId: string,
   messageId: string,

@@ -6,15 +6,6 @@
 **/.tmp
 .DS_Store
 **/.DS_Store
-*.png
-*.jpg
-*.jpeg
-*.webp
-*.gif
-*.mp4
-*.mov
-*.wav
-*.mp3
 node_modules
 **/node_modules
 .pnpm-store
@@ -37,12 +28,3 @@ dist
 apps/macos/.build
 apps/ios/build
 **/*.trace
-
-# large app trees not needed for CLI build
-apps/
-assets/
-Peekaboo/
-Swabble/
-Core/
-Users/
-vendor/

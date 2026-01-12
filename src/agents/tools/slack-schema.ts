@@ -74,4 +74,11 @@ export const SlackToolSchema = Type.Union([
     action: Type.Literal("emojiList"),
     accountId: Type.Optional(Type.String()),
   }),
+  Type.Object({
+    action: Type.Literal("channels.list"),
+    limit: Type.Optional(Type.Number({ description: "Page size (default 200)" })),
+    cursor: Type.Optional(Type.String({ description: "Pagination cursor" })),
+    types: Type.Optional(Type.String({ description: "Comma-separated Slack conversation types (e.g. public_channel,private_channel)" })),
+    excludeArchived: Type.Optional(Type.Boolean({ description: "Exclude archived channels (default true)" })),
+  }),
 ]);

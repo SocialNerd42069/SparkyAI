@@ -6,6 +6,7 @@ import {
   deleteSlackMessage,
   editSlackMessage,
   getSlackMemberInfo,
+  listSlackChannels,
   listSlackEmojis,
   listSlackPins,
   listSlackReactions,
@@ -33,6 +34,7 @@ const messagingActions = new Set([
 
 const reactionsActions = new Set(["react", "reactions"]);
 const pinActions = new Set(["pinMessage", "unpinMessage", "listPins"]);
+const channelsActions = new Set(["channels.list"]);
 
 export type SlackActionContext = {
   /** Current channel ID for auto-threading. */
@@ -274,6 +276,31 @@ export async function handleSlackAction(
       ? await listSlackEmojis(accountOpts)
       : await listSlackEmojis();
     return jsonResult({ ok: true, emojis });
+  }
+
+  if (channelsActions.has(action)) {
+    if (!isActionEnabled("channelInfo")) {
+      throw new Error("Slack channel info is disabled.");
+    }
+    const limitRaw = params.limit;
+    const limit =
+      typeof limitRaw === "number" && Number.isFinite(limitRaw)
+        ? limitRaw
+        : undefined;
+    const cursor = readStringParam(params, "cursor");
+    const types = readStringParam(params, "types");
+    const excludeArchivedRaw = params.excludeArchived;
+    const excludeArchived =
+      typeof excludeArchivedRaw === "boolean" ? excludeArchivedRaw : undefined;
+
+    const result = await listSlackChannels({
+      limit,
+      cursor: cursor ?? undefined,
+      types: types ?? undefined,
+      excludeArchived,
+    });
+
+    return jsonResult({ ok: true, ...result, count: result.channels.length });
   }
 
   throw new Error(`Unknown action: ${action}`);

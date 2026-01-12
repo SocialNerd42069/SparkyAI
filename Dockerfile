@@ -6,6 +6,15 @@ ENV PATH="/root/.bun/bin:${PATH}"
 
 RUN corepack enable
 
+# Install uv for skills that use PEP-723 headers (e.g., nano-banana-pro).
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh   && ln -s /root/.local/bin/uv /usr/local/bin/uv   && ln -s /root/.local/bin/uvx /usr/local/bin/uvx
+
+# Preinstall Nano Banana deps so the skill works immediately.
+RUN uv pip install --system --break-system-packages google-genai pillow
+
+# Install ClawdHub CLI so skills can be installed from the registry at runtime.
+RUN npm i -g clawdhub
+
 WORKDIR /app
 
 ARG CLAWDBOT_DOCKER_APT_PACKAGES=""
@@ -29,5 +38,6 @@ RUN pnpm ui:install
 RUN pnpm ui:build
 
 ENV NODE_ENV=production
+ENV PATH="/home/node/clawd/.local/bin:/home/node/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 CMD ["node", "dist/index.js"]
